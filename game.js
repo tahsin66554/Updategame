@@ -1,107 +1,83 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+// গেমের স্টেট
+const board = document.getElementById('board');
+const diceResult = document.getElementById('diceResult');
+const status = document.getElementById('status');
+const rollDiceBtn = document.getElementById('rollDiceBtn');
 
-canvas.width = 400;
-canvas.height = 600;
+// প্লেয়ারদের স্টেট
+const players = [
+    { name: "Red", color: "red", position: 0, piece: null },
+    { name: "Blue", color: "blue", position: 0, piece: null },
+    { name: "Green", color: "green", position: 0, piece: null },
+    { name: "Yellow", color: "yellow", position: 0, piece: null }
+];
 
-let mobs = [];
-let obstacles = [];
-let powerUps = [];
-let score = 0;
-let level = 1;
-let speed = 2;
+let currentPlayer = 0; // প্রথম প্লেয়ার
 
-// মাউস ক্লিক করলে নতুন Mob তৈরি হবে
-canvas.addEventListener("click", function(event) {
-    let x = event.clientX - canvas.getBoundingClientRect().left;
-    mobs.push({ x: x, y: canvas.height - 20, radius: 10, color: "blue" });
+// বোর্ড তৈরি করা
+function createBoard() {
+    for (let i = 0; i < 225; i++) {
+        const square = document.createElement('div');
+        square.setAttribute('id', 'square' + i);
+        board.appendChild(square);
+    }
+
+    // গেম পিসের জন্য এলিমেন্ট তৈরি
+    players.forEach(player => {
+        const piece = document.createElement('div');
+        piece.classList.add('player-piece');
+        piece.style.backgroundColor = player.color;
+        player.piece = piece;
+        document.getElementById('square' + player.position).appendChild(piece);
+    });
+}
+
+// ডাইস রোল ফাংশন
+function rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+// গেমের নিয়ম অনুযায়ী প্লেয়ার পজিশন আপডেট
+function movePlayer() {
+    const dice = rollDice();
+    diceResult.textContent = `Dice Result: ${dice}`;
+    const player = players[currentPlayer];
+
+    player.position += dice;
+
+    // যদি গেম শেষ না হয়
+    if (player.position >= 224) {
+        player.position = 224; // শেষ স্কয়ারে পৌছানো
+        status.textContent = `${player.name} Wins!`;
+    }
+
+    // নতুন পজিশনে প্লেয়ার পিস আপডেট
+    updateBoard();
+}
+
+// বোর্ডে পজিশন আপডেট করা
+function updateBoard() {
+    players.forEach(player => {
+        // প্রতিটি প্লেয়ারের পিসের বর্তমান পজিশন অনুযায়ী আপডেট
+        const square = document.getElementById('square' + player.position);
+        square.appendChild(player.piece);
+    });
+}
+
+// পরবর্তী প্লেয়ারে স্যুইচ করা
+function nextPlayer() {
+    currentPlayer = (currentPlayer + 1) % players.length;
+    status.textContent = `${players[currentPlayer].name}'s Turn`;
+}
+
+// ডাইস রোল বোতাম ক্লিক করা হলে
+rollDiceBtn.addEventListener('click', function () {
+    movePlayer();
+    if (status.textContent.indexOf("Wins") === -1) {
+        nextPlayer();
+    }
 });
 
-// বাধা তৈরি করা
-function spawnObstacle() {
-    let x = Math.random() * (canvas.width - 50);
-    let type = Math.random() > 0.5 ? "normal" : "fast"; // দুই ধরনের বাধা
-    obstacles.push({
-        x: x, y: 0, width: 50, height: 20, color: type === "normal" ? "red" : "purple",
-        speed: type === "normal" ? speed : speed + 2
-    });
-}
-
-// পাওয়ার-আপ তৈরি করা
-function spawnPowerUp() {
-    let x = Math.random() * (canvas.width - 30);
-    powerUps.push({ x: x, y: 0, radius: 10, color: "yellow" });
-}
-
-setInterval(spawnObstacle, 2000);
-setInterval(spawnPowerUp, 5000); // প্রতি ৫ সেকেন্ডে পাওয়ার-আপ আসবে
-
-// গেম আপডেট লজিক
-function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // মব মুভমেন্ট
-    mobs.forEach((mob, index) => {
-        mob.y -= speed;
-        ctx.beginPath();
-        ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
-        ctx.fillStyle = mob.color;
-        ctx.fill();
-        ctx.closePath();
-
-        // বাধার সাথে সংঘর্ষ চেক করা
-        obstacles.forEach((obstacle, obsIndex) => {
-            if (
-                mob.x > obstacle.x &&
-                mob.x < obstacle.x + obstacle.width &&
-                mob.y > obstacle.y &&
-                mob.y < obstacle.y + obstacle.height
-            ) {
-                mobs.splice(index, 1);
-                obstacles.splice(obsIndex, 1);
-                score++;
-                if (score % 10 === 0) {
-                    level++;
-                    speed += 0.5; // লেভেল বাড়লে গেম দ্রুত হবে
-                }
-            }
-        });
-
-        // পাওয়ার-আপ সংগ্রহ করা
-        powerUps.forEach((powerUp, pIndex) => {
-            let dist = Math.hypot(mob.x - powerUp.x, mob.y - powerUp.y);
-            if (dist < mob.radius + powerUp.radius) {
-                powerUps.splice(pIndex, 1);
-                speed += 1; // পাওয়ার-আপ নিলে স্পিড বাড়বে
-            }
-        });
-    });
-
-    // বাধার মুভমেন্ট
-    obstacles.forEach((obstacle) => {
-        obstacle.y += obstacle.speed;
-        ctx.fillStyle = obstacle.color;
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    });
-
-    // পাওয়ার-আপ মুভমেন্ট
-    powerUps.forEach((powerUp) => {
-        powerUp.y += 2;
-        ctx.beginPath();
-        ctx.arc(powerUp.x, powerUp.y, powerUp.radius, 0, Math.PI * 2);
-        ctx.fillStyle = powerUp.color;
-        ctx.fill();
-        ctx.closePath();
-    });
-
-    // স্কোর ও লেভেল দেখানো
-    ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 20, 30);
-    ctx.fillText("Level: " + level, 300, 30);
-
-    requestAnimationFrame(update);
-}
-
-// গেম শুরু করা
-update();
+// গেম শুরু
+createBoard();
+status.textContent = `${players[currentPlayer].name}'s Turn`;
