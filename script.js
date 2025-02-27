@@ -1,81 +1,46 @@
-// গেমের স্টেট
-const board = document.getElementById('board');
-const diceResult = document.getElementById('diceResult');
-const status = document.getElementById('status');
-const rollDiceBtn = document.getElementById('rollDiceBtn');
+// লুডু বোর্ড তৈরি (Three.js ব্যবহার)
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("ludoCanvas") });
 
-// প্লেয়ারদের স্টেট
-const players = [
-    { name: "Red", color: "red", position: 0, piece: null },
-    { name: "Blue", color: "blue", position: 0, piece: null },
-    { name: "Green", color: "green", position: 0, piece: null },
-    { name: "Yellow", color: "yellow", position: 0, piece: null }
-];
+renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
+document.body.appendChild(renderer.domElement);
 
-let currentPlayer = 0; // প্রথম প্লেয়ার
+// লুডু বোর্ডের প্লেন তৈরি
+const boardGeometry = new THREE.PlaneGeometry(10, 10);
+const boardTexture = new THREE.TextureLoader().load('assets/ludo-board.png');
+const boardMaterial = new THREE.MeshBasicMaterial({ map: boardTexture });
+const board = new THREE.Mesh(boardGeometry, boardMaterial);
+scene.add(board);
 
-// বোর্ড তৈরি করা
-function createBoard() {
-    for (let i = 0; i < 225; i++) {
-        const square = document.createElement('div');
-        square.setAttribute('id', 'square' + i);
-        board.appendChild(square);
-    }
+// গুটি (প্লেয়ার পিস) তৈরি করা
+const pieceGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 32);
+const redMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 
-    // গেম পিসের জন্য এলিমেন্ট তৈরি
-    players.forEach(player => {
-        const piece = document.createElement('div');
-        piece.classList.add('player-piece', player.color);
-        player.piece = piece;
-        document.getElementById('square' + player.position).appendChild(piece);
-    });
+const redPiece = new THREE.Mesh(pieceGeometry, redMaterial);
+redPiece.position.set(-3, 0, 3);
+scene.add(redPiece);
+
+const bluePiece = new THREE.Mesh(pieceGeometry, blueMaterial);
+bluePiece.position.set(3, 0, -3);
+scene.add(bluePiece);
+
+camera.position.z = 5;
+
+// রেন্ডার ফাংশন
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
 }
+animate();
 
-// ডাইস রোল ফাংশন
+// ডাইস রোল করা
 function rollDice() {
-    return Math.floor(Math.random() * 6) + 1;
+    let diceValue = Math.floor(Math.random() * 6) + 1;
+    document.getElementById("diceResult").innerText = `Roll: ${diceValue}`;
+
+    // গুটির মুভমেন্ট (এনিমেশন)
+    let newPosition = redPiece.position.x + diceValue * 0.5;
+    gsap.to(redPiece.position, { x: newPosition, duration: 1 });
 }
-
-// গেমের নিয়ম অনুযায়ী প্লেয়ার পজিশন আপডেট
-function movePlayer() {
-    const dice = rollDice();
-    diceResult.textContent = `Dice Result: ${dice}`;
-    const player = players[currentPlayer];
-
-    player.position += dice;
-
-    // যদি গেম শেষ না হয়
-    if (player.position >= 224) {
-        player.position = 224; // শেষ স্কয়ারে পৌছানো
-        status.textContent = `${player.name} Wins!`;
-    }
-
-    // নতুন পজিশনে প্লেয়ার পিস আপডেট
-    updateBoard();
-}
-
-// বোর্ডে পজিশন আপডেট করা
-function updateBoard() {
-    players.forEach(player => {
-        const square = document.getElementById('square' + player.position);
-        square.appendChild(player.piece);
-    });
-}
-
-// পরবর্তী প্লেয়ারে স্যুইচ করা
-function nextPlayer() {
-    currentPlayer = (currentPlayer + 1) % players.length;
-    status.textContent = `${players[currentPlayer].name}'s Turn`;
-}
-
-// ডাইস রোল বোতাম ক্লিক করা হলে
-rollDiceBtn.addEventListener('click', function () {
-    movePlayer();
-    if (status.textContent.indexOf("Wins") === -1) {
-        nextPlayer();
-    }
-});
-
-// গেম শুরু
-createBoard();
-status.textContent = `${players[currentPlayer].name}'s Turn`;
