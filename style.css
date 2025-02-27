@@ -1,90 +1,31 @@
-/* সাধারণ স্টাইলিং */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.game-container {
+    font-family: Arial, sans-serif;
     text-align: center;
-    width: 700px;
-    background-color: #fff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 20px;
+    background: url('assets/background.jpg') no-repeat center center/cover;
+    color: white;
 }
 
 h1 {
-    font-size: 2em;
-    color: #333;
+    margin-top: 20px;
 }
 
-.board {
-    display: grid;
-    grid-template-columns: repeat(15, 50px);
-    grid-template-rows: repeat(15, 50px);
-    gap: 2px;
-    margin: 20px auto;
-    width: 750px;
-    height: 750px;
-    background-color: #f1f1f1;
-    border: 4px solid #333;
-    position: relative;
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
 }
 
-/* গ্রিডের সেলগুলোর স্টাইল */
-.board div {
-    width: 50px;
-    height: 50px;
-    background-color: #e5e5e5;
-    border: 1px solid #ccc;
-    position: relative;
-    box-sizing: border-box;
-}
-
-/* প্লেয়ার পিস (গুটি) */
-.player-piece {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-}
-
-.red { background-color: red; }
-.blue { background-color: blue; }
-.green { background-color: green; }
-.yellow { background-color: yellow; }
-
-/* ডাইস রোল বোতাম */
 button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #ffcc00;
     border: none;
+    padding: 10px 20px;
     font-size: 18px;
     cursor: pointer;
-    border-radius: 4px;
 }
 
-button:hover {
-    background-color: #45a049;
-}
-
-#diceResult {
-    font-size: 20px;
-    margin-top: 15px;
-}
-
-#status {
+canvas {
+    border: 5px solid white;
     margin-top: 20px;
-    font-size: 20px;
-    color: #333;
+    background-color: green;
 }
