@@ -3,23 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ludo 2v2 Game</title>
+    <title>Ludo Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <h1>Ludo 2v2 Game</h1>
-
-    <div class="game-container">
-        <div class="dice">
-            <button onclick="rollDice()">🎲 Roll Dice</button>
-            <p id="diceResult">Roll: 1</p>
-        </div>
-        
-        <canvas id="ludoCanvas"></canvas>
-    </div>
-
-    <script src="three.min.js"></script>
-    <script src="script.js"></script>
+    <canvas id="gameCanvas"></canvas>
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>
