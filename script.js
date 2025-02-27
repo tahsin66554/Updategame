@@ -25,8 +25,7 @@ function createBoard() {
     // গেম পিসের জন্য এলিমেন্ট তৈরি
     players.forEach(player => {
         const piece = document.createElement('div');
-        piece.classList.add('player-piece');
-        piece.style.backgroundColor = player.color;
+        piece.classList.add('player-piece', player.color);
         player.piece = piece;
         document.getElementById('square' + player.position).appendChild(piece);
     });
@@ -58,7 +57,6 @@ function movePlayer() {
 // বোর্ডে পজিশন আপডেট করা
 function updateBoard() {
     players.forEach(player => {
-        // প্রতিটি প্লেয়ারের পিসের বর্তমান পজিশন অনুযায়ী আপডেট
         const square = document.getElementById('square' + player.position);
         square.appendChild(player.piece);
     });
